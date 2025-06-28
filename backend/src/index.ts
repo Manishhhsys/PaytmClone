@@ -1,12 +1,16 @@
 import express from "express";
 import cors from "cors"
-import { configDotenv } from "dotenv";
-import { jwtSign, jwtVerify } from "./utils/jwtGenAndSign";
-configDotenv();
+
+import userRoute from "./routes/user.routes";
+import transcation from "./routes/transaction.route";
+
+
 const app=express()
 app.use(express.json())
 app.use(cors())
 
+app.use("/api/v1/user",userRoute)
+app.use("/api/v1/transaction",transcation)
 
 
 app.listen(process.env._PORT,()=>{
