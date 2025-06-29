@@ -1,9 +1,11 @@
-import {Router,Request,Response} from "express"
-import { UserSchema, userSchemaSignin } from "../schema/userSchema";
+import {Router,Request,Response, json} from "express"
+import { UserSchema, userSchemaSignin, userUpdateschema } from "../schema/userSchema";
 import { StatusCode } from "../types/statusCodeenums";
 import { hashPassword, unHashPassword } from "../utils/hashPassword";
 import prisma from "../utils/prismaClientConfig";
 import { jwtSign } from "../utils/jwtGenAndSign";
+import { OK } from "zod";
+import { off } from "npm";
 const router=Router();
 
 export const singUpController=async (req:Request,res:Response)=>{
@@ -107,3 +109,81 @@ export const siginInController=async (req:Request,res:Response)=>{
     }
 }
 
+
+export const ProfileUpdate=async(req:Request,res:Response)=>{
+    try{
+        const parserdata=userUpdateschema.safeParse(req.body)
+        if(!parserdata.success){
+            res.status(StatusCode.UNPROCESSABLE_ENTITY).json({
+                message:parserdata.error.message
+            })
+            return
+        }
+        const {firstName,lastName,email}=parserdata.data;
+        const updateData: Record<string, any> = {};
+            if (firstName !== undefined) updateData.firstName = firstName;
+            if (lastName !== undefined) updateData.lastName = lastName;
+            if (email !== undefined) updateData.email = email;
+
+           
+            if (Object.keys(updateData).length === 0) {
+             res.status(StatusCode.BAD_REQUEST).json({
+                message: "No update fields provided",
+            });
+            return
+            }
+
+       
+        const response=await prisma.user.update({
+            where:{
+                id:req.userId
+            },
+            data:updateData
+        })
+        if(!response){
+            res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+                message:"Unable to Update the Details"
+            })
+            return
+        }
+        res.status(StatusCode.OK).json({
+            message:"Details Updated"
+        })
+        return
+    }catch(e){
+        console.log(e)
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+            message:"Internal Error While Updating the Details"
+        })
+    }
+}
+
+
+export const getDetails=async(req:Request,res:Response)=>{
+    try{
+       const limit = parseInt(req.query.limit as string) || 10;
+       const offset = parseInt(req.query.offset as string) || 0;
+        const response=await prisma.user.findMany({
+            select:{
+                firstName:true,
+                lastName:true,
+                id:true
+            },
+            skip:offset,
+            take:limit
+            
+        })
+        if(!response){
+            res.status(StatusCode.FORBIDDEN)
+            return
+        }
+        res.status(StatusCode.OK).json({
+            data:response
+        })
+    }catch(e){
+        console.log(e)
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+            message:"Internal Error"
+        })
+    }
+}

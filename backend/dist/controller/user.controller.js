@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.siginInController = exports.singUpController = void 0;
+exports.getDetails = exports.ProfileUpdate = exports.siginInController = exports.singUpController = void 0;
 const express_1 = require("express");
 const userSchema_1 = require("../schema/userSchema");
 const statusCodeenums_1 = require("../types/statusCodeenums");
@@ -122,3 +122,80 @@ const siginInController = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.siginInController = siginInController;
+const ProfileUpdate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const parserdata = userSchema_1.userUpdateschema.safeParse(req.body);
+        if (!parserdata.success) {
+            res.status(statusCodeenums_1.StatusCode.UNPROCESSABLE_ENTITY).json({
+                message: parserdata.error.message
+            });
+            return;
+        }
+        const { firstName, lastName, email } = parserdata.data;
+        const updateData = {};
+        if (firstName !== undefined)
+            updateData.firstName = firstName;
+        if (lastName !== undefined)
+            updateData.lastName = lastName;
+        if (email !== undefined)
+            updateData.email = email;
+        if (Object.keys(updateData).length === 0) {
+            res.status(statusCodeenums_1.StatusCode.BAD_REQUEST).json({
+                message: "No update fields provided",
+            });
+            return;
+        }
+        const response = yield prismaClientConfig_1.default.user.update({
+            where: {
+                id: req.userId
+            },
+            data: updateData
+        });
+        if (!response) {
+            res.status(statusCodeenums_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+                message: "Unable to Update the Details"
+            });
+            return;
+        }
+        res.status(statusCodeenums_1.StatusCode.OK).json({
+            message: "Details Updated"
+        });
+        return;
+    }
+    catch (e) {
+        console.log(e);
+        res.status(statusCodeenums_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+            message: "Internal Error While Updating the Details"
+        });
+    }
+});
+exports.ProfileUpdate = ProfileUpdate;
+const getDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = parseInt(req.query.offset) || 0;
+        const response = yield prismaClientConfig_1.default.user.findMany({
+            select: {
+                firstName: true,
+                lastName: true,
+                id: true
+            },
+            skip: offset,
+            take: limit
+        });
+        if (!response) {
+            res.status(statusCodeenums_1.StatusCode.FORBIDDEN);
+            return;
+        }
+        res.status(statusCodeenums_1.StatusCode.OK).json({
+            data: response
+        });
+    }
+    catch (e) {
+        console.log(e);
+        res.status(statusCodeenums_1.StatusCode.INTERNAL_SERVER_ERROR).json({
+            message: "Internal Error"
+        });
+    }
+});
+exports.getDetails = getDetails;
