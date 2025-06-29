@@ -30,6 +30,7 @@ function userAuthCheck(req, res, next) {
                 return;
             }
             req.userId = userId;
+            
             next();
         }
         catch (e) {

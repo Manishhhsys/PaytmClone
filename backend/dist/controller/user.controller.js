@@ -61,11 +61,20 @@ const singUpController = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 message: "Unable to Create the Account"
             });
         }
-        else {
-            res.status(statusCodeenums_1.StatusCode.OK).json({
-                message: "Success"
+        const responseaccount = yield prismaClientConfig_1.default.account.create({
+            data: {
+                userId: response.id,
+                balance: 0
+            }
+        });
+        if (!responseaccount) {
+            res.status(statusCodeenums_1.StatusCode.UNPROCESSABLE_ENTITY).json({
+                message: "Unable To create The Account Balance"
             });
         }
+        res.status(statusCodeenums_1.StatusCode.OK).json({
+            message: "Success"
+        });
     }
     catch (e) {
         console.log(e);

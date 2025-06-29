@@ -24,7 +24,7 @@ model User {
 
 model Account {
   accountId String @id @default(cuid())
-  userId    String
+  userId    String @unique
   balance   Int
   user      User   @relation(fields: [userId], references: [id])
 }

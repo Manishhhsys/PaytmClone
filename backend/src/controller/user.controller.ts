@@ -44,15 +44,28 @@ export const singUpController=async (req:Request,res:Response)=>{
                 password:hasedvalue
             }
         })
+        
        if(!response){
         res.status(StatusCode.CREATED).json({
             message:"Unable to Create the Account"
         })
-       }else{
+       }
+       const responseaccount=await prisma.account.create({
+            data:{
+                userId:response.id,
+                balance:0
+            }
+        })
+        if(!responseaccount){
+            res.status(StatusCode.UNPROCESSABLE_ENTITY).json({
+                message:"Unable To create The Account Balance"
+            })
+        }
         res.status(StatusCode.OK).json({
             message:"Success"
         })
-       }
+       
+
     }catch(e){
         console.log(e)
         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({

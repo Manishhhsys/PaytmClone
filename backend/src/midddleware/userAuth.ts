@@ -21,7 +21,7 @@ async function userAuthCheck(req:Request,res:Response,next:NextFunction){
             })
             return 
         }
-        let jwt=token?.split(" ",)[1]
+        let jwt=token?.split(" ")[1]
         const userId=await jwtVerify(jwt)
         if(!userId){
             res.status(StatusCode.UNAUTHORIZED).json({
@@ -30,6 +30,7 @@ async function userAuthCheck(req:Request,res:Response,next:NextFunction){
             return
         }
         req.userId=userId
+        console.log(req.userId)
         next()
     }catch(e){
         res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
