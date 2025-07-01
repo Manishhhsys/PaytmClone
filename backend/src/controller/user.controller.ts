@@ -25,7 +25,7 @@ export const singUpController=async (req:Request,res:Response)=>{
         })
         if(findUniqueEmail?.email===email){
             res.status(StatusCode.FORBIDDEN).json({
-                messsage:"Email Already Exists Try an New Email Id"
+                message:"Email Already Exists Try an New Email Id"
             })
             return
         }
