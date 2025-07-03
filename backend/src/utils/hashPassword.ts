@@ -5,7 +5,7 @@ import bcrypt from "bcrypt"
 export const hashPassword=async (password:string):Promise<string | null>=>{
     if(!password) {return null}
     try{
-        console.log(password)
+       
         const value= await bcrypt.hash(password,10) 
         return value
     }catch(e){

@@ -201,3 +201,80 @@ export const getDetails=async(req:Request,res:Response)=>{
         })
     }
 }
+
+export const getUserById = async (req: Request, res: Response) => {
+    const userId = req.userId
+    try {
+        const response = await prisma.user.findFirst({
+            where: {
+                id: userId
+            }, select: {
+                firstName: true
+            }
+        })
+        if (!response) {
+            res.status(StatusCode.NOT_FOUND).json({
+                message: "Invalid User Id"
+            })
+            return
+        }
+        res.status(StatusCode.OK).json({
+            messsage: "Success",
+            data: response.firstName
+        })
+
+    } catch (e) {
+        console.log(e);
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+            message: "Intenal Error While Getting the User"
+        })
+        return
+    }
+}
+
+export const filterUserByName = async (req: Request, res: Response) => {
+    try {
+
+        const { firstName = "", lastName = "" } = req.query
+        
+        const filters: any[] = [];
+
+        if (firstName) {
+            filters.push({ firstName: { contains: firstName, mode: "insensitive" } });
+        }
+
+        if (lastName) {
+            filters.push({ lastName: { contains: lastName, mode: "insensitive" } });
+        }
+        const response = await prisma.user.findMany({
+            where: {
+                OR: filters.length > 0 ? filters : undefined,
+            },
+            select: {
+                firstName: true,
+                lastName: true,
+                id:true
+            }
+        })
+
+        if (!response) {
+            res.status(StatusCode.NOT_FOUND).json({
+                message: "No User Found"
+            })
+            return
+        }
+        res.status(StatusCode.OK).json({
+            message: "Success",
+            data:response
+        }
+        )
+        return
+    }
+    catch (e) {
+    console.log(e);
+    res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        message: "Internal error While Filtering"
+    })
+    return
+}
+}

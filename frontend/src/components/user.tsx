@@ -4,7 +4,7 @@ interface Userprops{
     firstName:string,
     lastName:string,
     id?:string,
-    onSend:()=>void
+    onSend?:()=>void;
 }
 function User({firstName,lastName,id,onSend}:Userprops) {
   return (
@@ -14,7 +14,7 @@ function User({firstName,lastName,id,onSend}:Userprops) {
                             <div>{firstName} {lastName}</div>
                         </div>
                         <div className="flex justify-end">
-                            <Button className='mr-2' variant="default" onClick={onSend}>Send Money</Button>
+                            <Button className='mr-2' variant="default" onClick={onSend} >Send Money</Button>
                         </div>
 
                     </div>

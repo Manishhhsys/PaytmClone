@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getDetails, ProfileUpdate, siginInController, singUpController } from "../controller/user.controller";
 import userAuthCheck from "../midddleware/userAuth";
-import { filterUserByName, getUserById } from "../controller/account.controller";
+import { filterUserByName, getUserById } from "../controller/user.controller";
 
 const router=Router();
 

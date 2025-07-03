@@ -1,3 +1,4 @@
+import Nav from '@/components/nav'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -73,6 +74,8 @@ function Send() {
     }
 
     return (
+        <div>
+        <Nav></Nav>
         <div className='flex  items-center justify-center h-screen '>
             <Card className='md:w-[30%] w-[70%]'>
                 <CardHeader>
@@ -122,6 +125,7 @@ function Send() {
                 </CardContent>
 
             </Card>
+        </div>
         </div>
     )
 }
