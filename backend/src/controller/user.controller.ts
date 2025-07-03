@@ -111,7 +111,8 @@ export const siginInController=async (req:Request,res:Response)=>{
             return
         }
         res.status(StatusCode.OK).json({
-            message:"Bearer " + token
+            message:"Success",
+            token:"Bearer " + token
         })
 
     }catch(e){

@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import {  Link } from "react-router";
+import {  Link,  useNavigate } from "react-router";
 import axios, { type AxiosResponse } from "axios"
 import { toast } from "sonner"
 
@@ -36,7 +36,21 @@ const signupSchema = z.object({
 
 
 
-async function senddata(data: z.infer<typeof signupSchema>): Promise<void> {
+
+
+function SignUp() {
+    const Navigate=useNavigate()
+    const signupControl = useForm<z.infer<typeof signupSchema>>({
+        resolver: zodResolver(signupSchema),
+        defaultValues: {
+            email: "",
+            firstName: "",
+            lastName: "",
+            password: "",
+        }
+    })
+
+    async function senddata(data: z.infer<typeof signupSchema>): Promise<void> {
 try {
     const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/v1/user/signup`, {
       firstName: data.firstName,
@@ -59,6 +73,7 @@ try {
 function ToastNotifaction(res: AxiosResponse) {
     if (res.status === 200) {
         toast.success("Sign Up SuccessFull")
+        Navigate("/signin")
         return 
     }
 
@@ -72,18 +87,6 @@ function ToastNotifaction(res: AxiosResponse) {
 
   toast.error(` ${message}`);
 }
-
-function SignUp() {
-
-    const signupControl = useForm<z.infer<typeof signupSchema>>({
-        resolver: zodResolver(signupSchema),
-        defaultValues: {
-            email: "",
-            firstName: "",
-            lastName: "",
-            password: "",
-        }
-    })
 
 
     return (

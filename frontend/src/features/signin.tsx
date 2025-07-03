@@ -19,7 +19,10 @@ import { Button } from "@/components/ui/button"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { toast } from "sonner"
+import type { AxiosResponse } from "axios"
+import axios from "axios"
 
 const signinSchema = z.object({
     email: z.string().email({ message: "Please Enter A valid Email Id" }),
@@ -30,7 +33,7 @@ const signinSchema = z.object({
 })
 
 function SiginIn() {
-    
+    const Navigate=useNavigate()
     const signupControl = useForm<z.infer<typeof signinSchema>>({
         resolver: zodResolver(signinSchema),
         defaultValues: {
@@ -39,19 +42,54 @@ function SiginIn() {
         }
     })
 
+      async function senddata(data: z.infer<typeof signinSchema>): Promise<void> {
+try {
+    const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/v1/user/signin`, {
+      email: data.email,
+      password: data.password
+    });
+
+    ToastNotifaction(res)
+}catch(e:any){
+    if(axios.isAxiosError(e) && e.response){
+        ToastNotifaction(e.response)
+    }else{
+        toast.error("Unexpected Error Occured")
+    }
+}
+   
+}
+
+function ToastNotifaction(res: AxiosResponse) {
+    if (res.status === 200) {
+        toast.success(res.data.message)
+        localStorage.setItem("token",res.data.token)
+        Navigate("/dashboard")
+        return 
+    }
+
+    const message =
+    res.data?.messsage ||
+    res.data?.message ||
+    res.data?.error ||
+    res.data?.msg ||
+    res.statusText ||
+    "Something went wrong";
+
+  toast.error(` ${message}`);
+}
+
 
     return (
         <div className="flex justify-center items-center h-screen w-screen">
             <Card className="md:w-[30%] w-[70%]">
                 <CardHeader className="flex flex-col justify-center items-center">
-                    <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
+                    <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
                     <CardDescription>Send Money To Your Frnds</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Form {...signupControl}>
-                        <form className="space-y-4" onSubmit={signupControl.handleSubmit((data) => {
-                            console.log(data)
-                        })}>
+                        <form className="space-y-4" onSubmit={signupControl.handleSubmit(senddata)}>
                             
                             <FormField control={signupControl.control} name="email" render={({ field }) => (
                                 <FormItem>
@@ -73,7 +111,7 @@ function SiginIn() {
 
                             )} />
                             <div className="flex justify-center items-center">
-                                <Button className="cursor-pointer  " type="submit" disabled={signupControl.formState.isSubmitting}>Sign Up</Button>
+                                <Button className="cursor-pointer  " type="submit" disabled={signupControl.formState.isSubmitting}>Sign In</Button>
                             </div>
                             <p className="text-sm md:text-md text-center">
                                 <label> Don't have an account? {" "} <Link to="/signup" className="text-blue-400 cursor-pointer">Sign Up</Link></label>
